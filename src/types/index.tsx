@@ -13,6 +13,19 @@ export interface TableColumns {
     [key: string]: any;
   }
 
+export interface TableTemplateProps {
+  tableColumns: TableColumns[];
+  tableData: TableData[];
+  pageSize?:number;
+  hideToolbar?: boolean;
+  showActionColumn?: boolean;
+  enableDateFilters?: boolean;
+  densityFirst?: boolean;
+  selectedRows?: string[] | null,
+  setSelectedRows?: React.Dispatch<React.SetStateAction<string[]>> | null;
+  searchPlaceholder?:string,
+}
+
   // Define field types for form fields
 export type FieldType =
 | "text"
