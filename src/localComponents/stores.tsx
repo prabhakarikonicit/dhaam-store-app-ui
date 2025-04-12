@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Store, TableColumns } from "../types";
+import { FieldDefinition, Store, TableColumns } from "../types";
 import UnifiedPopover from "./common/DetailsModal";
 import TableTemplate from "./common/tableTemplate";
+import StatCard from "./common/statCard";
+import activeStore from "../assets/images/activeStore.svg";
+import closedStores from "../assets/images/activeStore.svg";
+import inactiveStores from "../assets/images/inactiveStores.svg";
+import openStores from "../assets/images/openStores.svg";
+import verified from "../assets/images/verified.svg";
+import CustomModal from "./common/modals";
 
 const Stores = () => {
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -9,6 +16,9 @@ const Stores = () => {
     null
   );
   const [popoverStore, setPopoverStore] = useState<Store | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const renderStoreId = (value: string, storeId: string) => {
     return (
@@ -197,8 +207,172 @@ const Stores = () => {
     }
   };
 
+  // Modal field definitions
+  const modalFields: FieldDefinition[] = [
+    { id: "name", label: "Store Name", type: "text", required: true },
+    { id: "address", label: "Store Address", type: "text", required: true },
+    {
+      id: "status",
+      label: "Status",
+      type: "select",
+      options: [
+        { value: "Active", label: "Active" },
+        { value: "Inactive", label: "Inactive" },
+      ],
+      required: true,
+    },
+  ];
+
+  const handleSave = (data: any) => {
+    if (modalMode === "add") {
+      const newStoreId = `#${Math.floor(10000 + Math.random() * 90000)}`;
+      const newId = Math.random().toString(36).substr(2, 9);
+      const newStatus = data.status as "Active" | "Inactive";
+      const newStore: Store = {
+        id: newId,
+        storeId: {jsx:renderStoreId(newStoreId, newId), value:newStoreId},
+        storeName: data.name,
+        address: data.address,
+        rating: {jsx:renderRating('0'), value:'0'},
+        activeStatus: {jsx:renderActiveStatus(newStatus), value:newStatus},
+        amount: "₹300.00",
+      };
+      setStores((prev) => [...prev, newStore]);
+    } else {
+      // Handle edit functionality if needed
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleAddStore = () => {
+    setModalMode("add");
+    setIsModalOpen(true);
+  };
+
   return (
-    <>
+    <div className="p-0 max-w-full rounded-l sm:max-h-full md:max-h-full lg:max-h-full xl:max-h-full max-h-[80vh] overflow-y-auto bg-background-grey">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6 px-8 pt-8">
+        <h1 className="text-[20px] font-inter font-[600] text-cardValue">
+          Stores
+        </h1>
+        <div className="flex space-x-2 relative">
+          {/* More actions dropdown */}
+          <div className="relative">
+            <button
+              className="bg-backgroundWhite rounded-custom px-4 py-2 flex items-center text-menuSubHeadingColor font-inter font-[12px] font-[500] border border-reloadBorder shadow-sm"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              More actions
+              <div className="ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M3.70503 5.10503C3.97839 4.83166 4.42161 4.83166 4.69497 5.10503L7 7.41005L9.30503 5.10503C9.57839 4.83166 10.0216 4.83166 10.295 5.10503C10.5683 5.37839 10.5683 5.82161 10.295 6.09498L7.49497 8.89498C7.22161 9.16834 6.77839 9.16834 6.50503 8.89498L3.70503 6.09498C3.43166 5.82161 3.43166 5.37839 3.70503 5.10503Z"
+                    fill="#636363"
+                  />
+                </svg>
+              </div>
+            </button>
+            {dropdownOpen && (
+              <div className="absolute right-0 left- top-12 bg-white shadow-lg rounded-custom border border-reloadBorder w-43 z-10">
+                <div className="py-1">
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-menuSubHeadingColor font-inter font-[12px] font-[500] whitespace-nowrap"
+                  >
+                    Import stores
+                  </a>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-menuSubHeadingColor font-inter font-[12px] font-[500] whitespace-nowrap"
+                  >
+                    Create new view
+                  </a>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-menuSubHeadingColor font-inter font-[12px] font-[500] whitespace-nowrap"
+                  >
+                    Hide analytics
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Add store button */}
+          <button
+            className="bg-bgButton text-whiteColor font-inter font-[12px] font-[600] border border-btnBorder rounded-md px-4 py-2 flex items-center shadow-sm"
+            onClick={handleAddStore}
+          >
+            {/* <Plus size={16} className="mr-1" /> */}
+            Add store
+            <div className="ml-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+              >
+                <path
+                  d="M7.00004 2.33334V11.6667M11.6667 7L2.33337 7"
+                  stroke="#D9D9D9"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+          </button>
+        </div>
+      </div>
+      {/* Stats cards */}
+      <div className="grid grid-cols-2 md:grid-cols-6 sm:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6 gap-1 bg-backgroundWhite mx-8 ps-3 py-3 pe-3  rounded-custom8px">
+        <StatCard
+          value="213"
+          description="Active Store"
+          descriptionFirst={true}
+          icon={activeStore}
+        />
+        <StatCard
+          value="245"
+          description="Inactive Stores"
+          descriptionFirst={true}
+          icon={inactiveStores}
+        />
+        <StatCard
+          value="111"
+          description="Open Stores"
+          descriptionFirst={true}
+          icon={openStores}
+        />
+        <StatCard
+          value="164"
+          description="Closed Store"
+          descriptionFirst={true}
+          icon={closedStores}
+        />
+        <StatCard
+          value="164"
+          description="Verified"
+          descriptionFirst={true}
+          icon={verified}
+        />
+        <StatCard
+          value="50"
+          description="Verified"
+          descriptionFirst={true}
+          icon={verified}
+        />
+      </div>
       <TableTemplate
         tableColumns={columns}
         tableData={stores}
@@ -208,13 +382,27 @@ const Stores = () => {
         searchPlaceholder="Search Store"
       />
       <UnifiedPopover
-          isOpen={popoverOpen}
-          onClose={() => setPopoverOpen(false)}
-          data={popoverStore}
-          type="store"
-          anchorEl={popoverAnchorEl}
-        />
-    </>
+        isOpen={popoverOpen}
+        onClose={() => setPopoverOpen(false)}
+        data={popoverStore}
+        type="store"
+        anchorEl={popoverAnchorEl}
+      />
+      {/* Modal */}
+      {isModalOpen && (
+          <CustomModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            mode={modalMode}
+            onSave={handleSave}
+            title={modalMode === "add" ? "Add Store" : "Edit Store"}
+            fields={modalFields}
+            size="md"
+            showToggle={false}
+            confirmText={modalMode === "add" ? "Add" : "Save"}
+          />
+        )}
+    </div>
   );
 };
 
