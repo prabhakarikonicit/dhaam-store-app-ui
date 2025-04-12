@@ -230,11 +230,11 @@ const Stores = () => {
       const newStatus = data.status as "Active" | "Inactive";
       const newStore: Store = {
         id: newId,
-        storeId: {jsx:renderStoreId(newStoreId, newId), value:newStoreId},
+        storeId: { jsx: renderStoreId(newStoreId, newId), value: newStoreId },
         storeName: data.name,
         address: data.address,
-        rating: {jsx:renderRating('0'), value:'0'},
-        activeStatus: {jsx:renderActiveStatus(newStatus), value:newStatus},
+        rating: { jsx: renderRating("0"), value: "0" },
+        activeStatus: { jsx: renderActiveStatus(newStatus), value: newStatus },
         amount: "₹300.00",
       };
       setStores((prev) => [...prev, newStore]);
@@ -390,18 +390,18 @@ const Stores = () => {
       />
       {/* Modal */}
       {isModalOpen && (
-          <CustomModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            mode={modalMode}
-            onSave={handleSave}
-            title={modalMode === "add" ? "Add Store" : "Edit Store"}
-            fields={modalFields}
-            size="md"
-            showToggle={false}
-            confirmText={modalMode === "add" ? "Add" : "Save"}
-          />
-        )}
+        <CustomModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          mode={modalMode}
+          onSave={handleSave}
+          title={modalMode === "add" ? "Add Store" : "Edit Store"}
+          fields={modalFields}
+          size="md"
+          showToggle={false}
+          confirmText={modalMode === "add" ? "Add" : "Save"}
+        />
+      )}
     </div>
   );
 };
