@@ -92,6 +92,16 @@ export interface FieldDefinition {
     items?: OrderItem[]
   }
 
+  export interface FetchedStoreType {
+    id:string;
+    storeId: string;
+    storeName: string;
+    address:string;
+    rating: string;
+    activeStatus: string;
+    amount:string;
+  }
+
   interface OrderItem {
     name: string;
     quantity: number;

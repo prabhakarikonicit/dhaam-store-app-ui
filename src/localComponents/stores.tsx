@@ -9,8 +9,10 @@ import inactiveStores from "../assets/images/inactiveStores.svg";
 import openStores from "../assets/images/openStores.svg";
 import verified from "../assets/images/verified.svg";
 import CustomModal from "./common/modals";
+import { fetchStores } from "../api";
 
 const Stores = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [popoverAnchorEl, setPopoverAnchorEl] = useState<HTMLElement | null>(
     null
@@ -106,53 +108,30 @@ const Stores = () => {
     },
   ];
 
-  const [stores, setStores] = useState<Store[]>([
-    {
-      id: "1",
-      storeId: { jsx: renderStoreId("#20345", "1"), value: "#20345" },
-      storeName: "Queenstown Public House",
-      address: "6391 Elgin St. Celina, Delaware 10299",
-      rating: { jsx: renderRating("4.21"), value: "4.21" },
-      activeStatus: { jsx: renderActiveStatus("Active"), value: "Active" },
-      amount: "₹300.00",
-    },
-    {
-      id: "2",
-      storeId: { jsx: renderStoreId("#20346", "2"), value: "#20346" },
-      storeName: "Plumed Horse",
-      address: "8502 Preston Rd. Inglewood, Maine 98380",
-      rating: { jsx: renderRating("4.01"), value: "4.01" },
-      activeStatus: { jsx: renderActiveStatus("Active"), value: "Active" },
-      amount: "₹250.00",
-    },
-    {
-      id: "3",
-      storeId: { jsx: renderStoreId("#20347", "3"), value: "#20347" },
-      storeName: "King Lee's",
-      address: "3517 W. Gray St. Utica, Pennsylvania 57867",
-      rating: { jsx: renderRating("3.01"), value: "3.01" },
-      activeStatus: { jsx: renderActiveStatus("Active"), value: "Active" },
-      amount: "₹400.00",
-    },
-    {
-      id: "4",
-      storeId: { jsx: renderStoreId("#20348", "4"), value: "#20348" },
-      storeName: "King Lee's",
-      address: "4140 Parker Rd. Allentown, New Mexico 31134",
-      rating: { jsx: renderRating("2.01"), value: "2.01" },
-      activeStatus: { jsx: renderActiveStatus("Active"), value: "Active" },
-      amount: "150.00",
-    },
-    {
-      id: "5",
-      storeId: { jsx: renderStoreId("#20349", "5"), value: "#20349" },
-      storeName: "Crab Hut",
-      address: "2715 Ash Dr. San Jose, South Dakota 83475",
-      rating: { jsx: renderRating("3.55"), value: "3.55" },
-      activeStatus: { jsx: renderActiveStatus("Active"), value: "Active" },
-      amount: "99.00",
-    },
-  ]);
+  const [stores, setStores] = useState<Store[]>([]);
+
+  const fetchStoresApi = async () => {
+    // fetch stores api
+    setIsLoading(true);
+    const storesResp = await fetchStores();
+    const storesTemp: Store[] = storesResp.map((item) => ({
+      id: item.id,
+      storeId: {
+        jsx: renderStoreId(item.storeId, item.id),
+        value: item.id,
+      },
+      storeName: item.storeName,
+      address: item.address,
+      rating: { jsx: renderRating(item.rating), value: item.rating },
+      activeStatus: {
+        jsx: renderActiveStatus(item.activeStatus),
+        value: item.activeStatus,
+      },
+      amount: item.amount,
+    }));
+    setStores(storesTemp);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -171,6 +150,10 @@ const Stores = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [popoverOpen, popoverAnchorEl]);
+
+  useEffect(() => {
+    fetchStoresApi();
+  }, []);
 
   const handleStoreIdClick = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -250,159 +233,164 @@ const Stores = () => {
   };
 
   return (
-    <div className="p-0 max-w-full rounded-l sm:max-h-full md:max-h-full lg:max-h-full xl:max-h-full max-h-[80vh] overflow-y-auto bg-background-grey">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6 px-8 pt-8">
-        <h1 className="text-[20px] font-inter font-[600] text-cardValue">
-          Stores
-        </h1>
-        <div className="flex space-x-2 relative">
-          {/* More actions dropdown */}
-          <div className="relative">
-            <button
-              className="bg-backgroundWhite rounded-custom px-4 py-2 flex items-center text-menuSubHeadingColor font-inter font-[12px] font-[500] border border-reloadBorder shadow-sm"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              More actions
-              <div className="ml-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 14 14"
-                  fill="none"
+    <>
+      {isLoading && <div>Loading stores....</div>}
+      {!isLoading && (
+        <div className="p-0 max-w-full rounded-l sm:max-h-full md:max-h-full lg:max-h-full xl:max-h-full max-h-[80vh] overflow-y-auto bg-background-grey">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6 px-8 pt-8">
+            <h1 className="text-[20px] font-inter font-[600] text-cardValue">
+              Stores
+            </h1>
+            <div className="flex space-x-2 relative">
+              {/* More actions dropdown */}
+              <div className="relative">
+                <button
+                  className="bg-backgroundWhite rounded-custom px-4 py-2 flex items-center text-menuSubHeadingColor font-inter font-[12px] font-[500] border border-reloadBorder shadow-sm"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M3.70503 5.10503C3.97839 4.83166 4.42161 4.83166 4.69497 5.10503L7 7.41005L9.30503 5.10503C9.57839 4.83166 10.0216 4.83166 10.295 5.10503C10.5683 5.37839 10.5683 5.82161 10.295 6.09498L7.49497 8.89498C7.22161 9.16834 6.77839 9.16834 6.50503 8.89498L3.70503 6.09498C3.43166 5.82161 3.43166 5.37839 3.70503 5.10503Z"
-                    fill="#636363"
-                  />
-                </svg>
+                  More actions
+                  <div className="ml-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M3.70503 5.10503C3.97839 4.83166 4.42161 4.83166 4.69497 5.10503L7 7.41005L9.30503 5.10503C9.57839 4.83166 10.0216 4.83166 10.295 5.10503C10.5683 5.37839 10.5683 5.82161 10.295 6.09498L7.49497 8.89498C7.22161 9.16834 6.77839 9.16834 6.50503 8.89498L3.70503 6.09498C3.43166 5.82161 3.43166 5.37839 3.70503 5.10503Z"
+                        fill="#636363"
+                      />
+                    </svg>
+                  </div>
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 left- top-12 bg-white shadow-lg rounded-custom border border-reloadBorder w-43 z-10">
+                    <div className="py-1">
+                      <a
+                        href="#"
+                        className="block px-4 py-2 text-menuSubHeadingColor font-inter font-[12px] font-[500] whitespace-nowrap"
+                      >
+                        Import stores
+                      </a>
+                      <a
+                        href="#"
+                        className="block px-4 py-2 text-menuSubHeadingColor font-inter font-[12px] font-[500] whitespace-nowrap"
+                      >
+                        Create new view
+                      </a>
+                      <a
+                        href="#"
+                        className="block px-4 py-2 text-menuSubHeadingColor font-inter font-[12px] font-[500] whitespace-nowrap"
+                      >
+                        Hide analytics
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
-            </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 left- top-12 bg-white shadow-lg rounded-custom border border-reloadBorder w-43 z-10">
-                <div className="py-1">
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-menuSubHeadingColor font-inter font-[12px] font-[500] whitespace-nowrap"
-                  >
-                    Import stores
-                  </a>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-menuSubHeadingColor font-inter font-[12px] font-[500] whitespace-nowrap"
-                  >
-                    Create new view
-                  </a>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-menuSubHeadingColor font-inter font-[12px] font-[500] whitespace-nowrap"
-                  >
-                    Hide analytics
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* Add store button */}
-          <button
-            className="bg-bgButton text-whiteColor font-inter font-[12px] font-[600] border border-btnBorder rounded-md px-4 py-2 flex items-center shadow-sm"
-            onClick={handleAddStore}
-          >
-            {/* <Plus size={16} className="mr-1" /> */}
-            Add store
-            <div className="ml-1">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
+              {/* Add store button */}
+              <button
+                className="bg-bgButton text-whiteColor font-inter font-[12px] font-[600] border border-btnBorder rounded-md px-4 py-2 flex items-center shadow-sm"
+                onClick={handleAddStore}
               >
-                <path
-                  d="M7.00004 2.33334V11.6667M11.6667 7L2.33337 7"
-                  stroke="#D9D9D9"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+                {/* <Plus size={16} className="mr-1" /> */}
+                Add store
+                <div className="ml-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                  >
+                    <path
+                      d="M7.00004 2.33334V11.6667M11.6667 7L2.33337 7"
+                      stroke="#D9D9D9"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </div>
+              </button>
             </div>
-          </button>
+          </div>
+          {/* Stats cards */}
+          <div className="grid grid-cols-2 md:grid-cols-6 sm:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6 gap-1 bg-backgroundWhite mx-8 ps-3 py-3 pe-3  rounded-custom8px">
+            <StatCard
+              value="213"
+              description="Active Store"
+              descriptionFirst={true}
+              icon={activeStore}
+            />
+            <StatCard
+              value="245"
+              description="Inactive Stores"
+              descriptionFirst={true}
+              icon={inactiveStores}
+            />
+            <StatCard
+              value="111"
+              description="Open Stores"
+              descriptionFirst={true}
+              icon={openStores}
+            />
+            <StatCard
+              value="164"
+              description="Closed Store"
+              descriptionFirst={true}
+              icon={closedStores}
+            />
+            <StatCard
+              value="164"
+              description="Verified"
+              descriptionFirst={true}
+              icon={verified}
+            />
+            <StatCard
+              value="50"
+              description="Verified"
+              descriptionFirst={true}
+              icon={verified}
+            />
+          </div>
+          <TableTemplate
+            tableColumns={columns}
+            tableData={stores}
+            enableDateFilters={true}
+            densityFirst={true}
+            pageSize={10}
+            searchPlaceholder="Search Store"
+          />
+          <UnifiedPopover
+            isOpen={popoverOpen}
+            onClose={() => setPopoverOpen(false)}
+            data={popoverStore}
+            type="store"
+            anchorEl={popoverAnchorEl}
+          />
+          {/* Modal */}
+          {isModalOpen && (
+            <CustomModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              mode={modalMode}
+              onSave={handleSave}
+              title={modalMode === "add" ? "Add Store" : "Edit Store"}
+              fields={modalFields}
+              size="md"
+              showToggle={false}
+              confirmText={modalMode === "add" ? "Add" : "Save"}
+            />
+          )}
         </div>
-      </div>
-      {/* Stats cards */}
-      <div className="grid grid-cols-2 md:grid-cols-6 sm:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6 gap-1 bg-backgroundWhite mx-8 ps-3 py-3 pe-3  rounded-custom8px">
-        <StatCard
-          value="213"
-          description="Active Store"
-          descriptionFirst={true}
-          icon={activeStore}
-        />
-        <StatCard
-          value="245"
-          description="Inactive Stores"
-          descriptionFirst={true}
-          icon={inactiveStores}
-        />
-        <StatCard
-          value="111"
-          description="Open Stores"
-          descriptionFirst={true}
-          icon={openStores}
-        />
-        <StatCard
-          value="164"
-          description="Closed Store"
-          descriptionFirst={true}
-          icon={closedStores}
-        />
-        <StatCard
-          value="164"
-          description="Verified"
-          descriptionFirst={true}
-          icon={verified}
-        />
-        <StatCard
-          value="50"
-          description="Verified"
-          descriptionFirst={true}
-          icon={verified}
-        />
-      </div>
-      <TableTemplate
-        tableColumns={columns}
-        tableData={stores}
-        enableDateFilters={true}
-        densityFirst={true}
-        pageSize={10}
-        searchPlaceholder="Search Store"
-      />
-      <UnifiedPopover
-        isOpen={popoverOpen}
-        onClose={() => setPopoverOpen(false)}
-        data={popoverStore}
-        type="store"
-        anchorEl={popoverAnchorEl}
-      />
-      {/* Modal */}
-      {isModalOpen && (
-        <CustomModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          mode={modalMode}
-          onSave={handleSave}
-          title={modalMode === "add" ? "Add Store" : "Edit Store"}
-          fields={modalFields}
-          size="md"
-          showToggle={false}
-          confirmText={modalMode === "add" ? "Add" : "Save"}
-        />
       )}
-    </div>
+    </>
   );
 };
 
