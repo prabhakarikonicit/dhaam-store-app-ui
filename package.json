@@ -1,6 +1,7 @@
 {
   "name": "dhaam_store_app_ui",
   "version": "0.0.1",
+  "homepage": "hhttp://dhaam-react.s3-website-us-west-2.amazonaws.com/",
   "type": "module",
   "scripts": {
   "build": "cross-env NODE_ENV=production rspack build",
